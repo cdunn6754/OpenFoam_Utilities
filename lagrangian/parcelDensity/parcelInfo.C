@@ -21,22 +21,21 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
-Application
-    coalChemistryFoam
+Utility
+    parcelInfo
 
 Description
-    Transient solver for compressible, turbulent flow, with coal and limestone
-    particle clouds, an energy source, and combustion.
+   Utility to write out the coal particle mass fraction and char burnout where 
+   char burnout is determined by (Y_ash - Y_ash_0)/(1.0 - Y_ash_0).
 
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
 #include "turbulentFluidThermoModel.H"
 #include "basicThermoCloud.H"
-#include "coalCloud.H"
+#include "DaemCoalCloud.H"
 #include "psiCombustionModel.H"
-#include "fvOptions.H"
-#include "radiationModel.H"
+//#include "radiationModel.H"
 #include "SLGThermo.H"
 #include "pimpleControl.H"
 #include "localEulerDdtScheme.H"
@@ -55,16 +54,6 @@ int main(int argc, char *argv[])
     #include "createTimeControls.H"
     #include "createRDeltaT.H"
     #include "createFields.H"
-    #include "createFvOptions.H"
-    #include "initContinuityErrs.H"
-
-  //turbulence->validate();
-
-    // if (!LTS)
-    // {
-    //     #include "compressibleCourantNo.H"
-    //     #include "setInitialDeltaT.H"
-    // }
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -112,15 +101,15 @@ int main(int argc, char *argv[])
   scalarField parcelCount(charBurnout.size(), 0.0);
 
   // get the id labels from the thermo composition stuff
-  const label idGas = coalParcels.composition().idGas();
+  //const label idGas = coalParcels.composition().idGas();
   const label idSolid = coalParcels.composition().idSolid();
 
   // Mass fractions of Gas and solid that every Particle starts with
-  const scalar YGas0 = coalParcels.composition().YMixture0()[idGas];
-  const scalar YSolid0 = coalParcels.composition().YMixture0()[idSolid];
+  // const scalar YGas0 = coalParcels.composition().YMixture0()[idGas];
+  // const scalar YSolid0 = coalParcels.composition().YMixture0()[idSolid];
 
   // Mass fractions again but itemized by specie
-  const scalarField& GasFractions0 = coalParcels.composition().Y0(idGas);
+  // const scalarField& GasFractions0 = coalParcels.composition().Y0(idGas);
   const scalarField& SolidFractions0 = coalParcels.composition().Y0(idSolid);
 
   // Get the ash id from within the SolidFraction
@@ -133,10 +122,10 @@ int main(int argc, char *argv[])
   // iterate through all parcels in the cloud
 
   Info << "Looping through parcels" << endl;
-  forAllIter(typename Cloud<coalParcel>, coalParcels, pIter)
+  forAllIter(typename Cloud<DaemCoalParcel>, coalParcels, pIter)
     {
       // current parcel
-      coalParcel& p = pIter();
+      DaemCoalParcel& p = pIter();
       // cell of p
       const label cellP = p.cell();
       //increment the averaging counter

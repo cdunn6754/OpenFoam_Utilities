@@ -1,5 +1,6 @@
 Info<< "\nConstructing coal cloud" << endl;
-coalCloud coalParcels
+
+DaemCoalCloud coalParcels
 (
     "coalCloud1",
     rho,
@@ -7,13 +8,3 @@ coalCloud coalParcels
     g,
     slgThermo
 );
-
-// Info<< "\nConstructing limestone cloud" << endl;
-// basicThermoCloud limestoneParcels
-// (
-//     "limestoneCloud1",
-//     rho,
-//     U,
-//     g,
-//     slgThermo
-// );
